@@ -1,0 +1,235 @@
+<div class="container center-block mb-5">
+
+    <!--TOOGLES INICIO-->
+    <div class="row justify-content-center">
+        <div class="btn-group btn-group-toggle my-3 col-md-6 col-sm-12" data-toggle="buttons">
+            <button class="btn btn-secondary" [class.active]="list" (click)="showList()">
+                <i class="icon ion-md-list"></i> Motoristas
+            </button>
+            <button class="btn btn-secondary" (click)="showRegister()"
+                [class.active]="register && (formulario.controls['codigo'].value == null)">
+                <i class="icon ion-md-person-add"></i> Novo
+            </button>
+            <button class="btn btn-secondary" [class.active]="report" (click)="showReport()">
+                <i class="icon ion-md-clipboard"></i> Relatórios
+            </button>
+        </div>
+    </div>
+    <!--TOOGLES FIM-->
+
+    <!--CADASTRO INICIO-->
+    <div class="row justify-content-center" *ngIf="register">
+        <div class="col col-md-5 col-sm-12">
+
+            <h2 class="my-md-1 text-center">
+                {{ formulario.controls['codigo'].value == null? 'Cadastro de ' : 'Editar '}} Motorista
+            </h2>
+
+            <form [formGroup]="formulario">
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input formControlName="nome" type="text" class="form-control" placeholder="Nome" maxlength="40"
+                        [class.is-invalid]="!formulario.controls['nome'].valid
+                                            && formulario.controls['nome'].touched">
+                    <div class="invalid-feedback">*Esse campo é obrigatório!</div>
+                </div>
+
+                <div class="form row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="cpf">CPF:</label>
+                        <input formControlName="cpf" type="text" class="form-control" placeholder="CPF"
+                            [dropSpecialCharacters]="false" mask="000.000.000-00" [class.is-invalid]="!formulario.controls['cpf'].valid
+                                                 && formulario.controls['cpf'].touched">
+                        <div class="invalid-feedback">*Esse campo é obrigatório!</div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="dataNascimento">Nascimento:</label>
+                        <input formControlName="dataNascimento" type="date" class="form-control" placeholder="dd/mm/aaaa"
+                            [class.is-valid]="formulario.controls['dataNascimento'].valid && formulario.controls['dataNascimento'].touched"
+                            [class.is-invalid]="!formulario.controls['dataNascimento'].valid && formulario.controls['dataNascimento'].touched">
+                        <div class="valid-feedback"></div>
+                        <div class="invalid-feedback">
+                            *A data está em um formato inválido!
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="login">Login:</label>
+                        <input formControlName="login" type="text" class="form-control" placeholder="Login"
+                            maxlength="12" [class.is-invalid]="!formulario.controls['login'].valid
+                                                && formulario.controls['login'].touched">
+                        <div class="invalid-feedback">*Esse campo é obrigatório!</div>
+                    </div>
+                    <div class="form-group col-sm-12 col-md-6">
+                        <label for="senha">Senha:</label>
+                        <input formControlName="senha" type="password" class="form-control" placeholder="Senha"
+                            maxlength="12" [class.is-invalid]="!formulario.controls['senha'].valid
+                                            && formulario.controls['senha'].touched">
+                        <div class="invalid-feedback">*Esse campo é obrigatório!</div>
+                    </div>
+                </div>
+
+
+                <div class="alert alert-success alert-dismissible alert-sm fade show" role="alert" *ngIf="aparecerMsg">
+                    Motorista cadastrado com sucesso!
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"
+                        (click)="aparecerMsg = false">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="alert alert-danger alert-dismissible alert-sm fade show" role="alert" *ngIf="remover">
+                    Tem certeza que deseja remover esse motorista?
+                    <button type="button" class="btn btn-primary btn-sm mx-2 my-2" (click)="remover = false">
+                        Cancelar
+                    </button>
+                    <button type="button" class="btn btn-danger btn-sm" (click)="excluir()">
+                        <i class="icon ion-md-trash"></i> Remover
+                    </button>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close"
+                        (click)="remover = false">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div *ngIf="formulario.controls['codigo'].value == null">
+                    <button (click)="salvar()" class="btn btn-success float-right mx-md-3"
+                        [disabled]="!formulario.valid">
+                        <i class="icon ion-md-save"></i> Salvar
+                    </button>
+                    <button (click)="cancelar()" class="btn btn-light float-right border">
+                        <i class="icon ion-md-close"></i> Limpar
+                    </button>
+                </div>
+                <div *ngIf="formulario.controls['codigo'].value != null && !remover">
+                    <button (click)="atualizar()" class="btn btn-success float-right mx-md-3"
+                        [disabled]="!formulario.valid">
+                        <i class="icon ion-md-save"></i> Salvar
+                    </button>
+                    <button class="btn btn-danger float-right mx-md-3" [disabled]="!formulario.valid"
+                        (click)="remover = true">
+                        <i class="icon ion-md-trash"></i> Remover
+                    </button>
+                    <button class="btn btn-light" (click)="showList()">
+                        <i class="icon ion-md-rewind"></i> Voltar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!--CADASTRO FIM-->
+
+    <!--LISTA INICIO-->
+    <div *ngIf="list">
+
+        <!--FILTROS INICIO-->
+        <div class="row justify-content-center">
+            <div class="col col-md-8 col-sm-12">
+                <h5 class="my-md-3 text-left">Filtrar</h5>
+                <form class="form-row">
+                    <div class="form-group col-md-6 col-sm-12">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" #campoCPF placeholder="CPF"
+                                [dropSpecialCharacters]="false" mask="000.000.000-00">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    (click)="buscarCPF(campoCPF.value)">
+                                    <i class="icon ion-md-search"></i>
+                                </button>
+                                <button class="btn btn-secondary" type="button"
+                                    (click)="showList(); campoCPF.value=''">
+                                    <i class="icon ion-md-backspace"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6 col-sm-12">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" #campoNome placeholder="Nome" maxlength="40">
+                            <div class="input-group-append">
+                                <button class="btn btn-outline-secondary" type="button"
+                                    (click)="buscarNome(campoNome.value)">
+                                    <i class="icon ion-md-search"></i></button>
+                                <button class="btn btn-secondary" type="button"
+                                    (click)="showList(); campoNome.value=''"><i
+                                        class="icon ion-md-backspace"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <!--Filtros FIM-->
+
+
+        <div class="row justify-content-center">
+            <div class="col col-md-8 col-sm-12">
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered text-center">
+                        <thead>
+                            <tr>
+                                <th scope="col">Nome</th>
+                                <th scope="col">CPF</th>
+                                <th scope="col">Data de Nascimento</th>
+                                <th scope="col">Login</th>
+                                <th scope="col">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr scope="row" *ngFor="let m of lista">
+                                <td>{{m.nome}}</td>
+                                <td>{{m.cpf}}</td>
+                                <td>{{m.dataNascimento | date:'dd/MM/yyyy'}}</td>
+                                <td>{{m.login}}</td>
+                                <td>
+                                    <button type="button" class="btn btn-outline-info btn-sm" (click)="update(m)">
+                                        <i class="icon ion-md-eye"></i> Visualizar
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!--LISTA FIM-->
+
+    <!--RELATORIO INICIO-->
+    <div *ngIf="report">
+        <div class="row justify-content-center">
+            <div class="col col-md-6 col-sm-12">
+                <form [formGroup]="formRelatorio">
+                    <div class="card">
+                        <h5 class="card-header">Aniversariantes no período</h5>
+                        <div class="card-body">
+                            <input #data1 type="date" maxlength="10" class="form-control" formControlName="data1"
+                                placeholder="dd/mm/aaaa"
+                                [class.is-valid]="formRelatorio.controls['data1'].valid && formRelatorio.controls['data1'].touched"
+                                [class.is-invalid]="!formRelatorio.controls['data1'].valid && formRelatorio.controls['data1'].touched">
+                            <div class="valid-feedback"></div>
+
+                            <input #data2 type="date" maxlength="10" class="form-control my-2" formControlName="data2"
+                                placeholder="dd/mm/aaaa"
+                                [class.is-valid]="formRelatorio.controls['data2'].valid && formRelatorio.controls['data2'].touched"
+                                [class.is-invalid]="!formRelatorio.controls['data2'].valid && formRelatorio.controls['data2'].touched">
+                            <div class="valid-feedback"></div>
+                            <div class="invalid-feedback">*A data está em um formato inválido!</div>
+
+                            <p class="card-text">
+                                Esse relatório sempre será gerado da menor data para a maior, não
+                                importando a ordem que foram colocadas acima!
+                            </p>
+                            <button (click)="aniversariantes(data1.value, data2.value)"
+                                class="btn btn-primary float-right" [disabled]=!formRelatorio.valid>
+                                <i class="icon ion-md-print"></i> Gerar
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--RELATORIO FIM-->
+
+</div>
